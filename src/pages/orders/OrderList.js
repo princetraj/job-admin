@@ -223,7 +223,10 @@ const OrderList = () => {
                 <TableCell>Razorpay Order ID</TableCell>
                 <TableCell>User</TableCell>
                 <TableCell>Plan</TableCell>
-                <TableCell>Amount</TableCell>
+                <TableCell>Original Amount</TableCell>
+                <TableCell>Discount</TableCell>
+                <TableCell>Final Amount</TableCell>
+                <TableCell>Coupon</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Created At</TableCell>
                 <TableCell>Actions</TableCell>
@@ -232,7 +235,7 @@ const OrderList = () => {
             <TableBody>
               {orders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center">
+                  <TableCell colSpan={11} align="center">
                     No orders found
                   </TableCell>
                 </TableRow>
@@ -255,7 +258,31 @@ const OrderList = () => {
                       ) : 'N/A'}
                     </TableCell>
                     <TableCell>{order.plan?.name || 'N/A'}</TableCell>
+                    <TableCell>
+                      {order.original_amount ? formatCurrency(order.original_amount) : formatCurrency(order.amount)}
+                    </TableCell>
+                    <TableCell>
+                      {order.discount_amount && parseFloat(order.discount_amount) > 0 ? (
+                        <Typography variant="body2" color="success.main" sx={{ fontWeight: 'bold' }}>
+                          {formatCurrency(order.discount_amount)}
+                        </Typography>
+                      ) : (
+                        <Typography variant="body2" color="textSecondary">-</Typography>
+                      )}
+                    </TableCell>
                     <TableCell>{formatCurrency(order.amount)}</TableCell>
+                    <TableCell>
+                      {order.coupon ? (
+                        <Chip
+                          label={order.coupon.code}
+                          color="success"
+                          size="small"
+                          variant="outlined"
+                        />
+                      ) : (
+                        <Typography variant="body2" color="textSecondary">-</Typography>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <Chip label={order.status} color={getStatusColor(order.status)} size="small" />
                     </TableCell>
@@ -452,9 +479,42 @@ const OrderList = () => {
                   <Typography variant="body1">{selectedOrder.plan?.name || 'N/A'}</Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography variant="subtitle2" color="textSecondary">Amount</Typography>
-                  <Typography variant="body1">{formatCurrency(selectedOrder.amount)}</Typography>
+                  <Typography variant="subtitle2" color="textSecondary">Original Amount</Typography>
+                  <Typography variant="body1">
+                    {selectedOrder.original_amount
+                      ? formatCurrency(selectedOrder.original_amount)
+                      : formatCurrency(selectedOrder.amount)}
+                  </Typography>
                 </Grid>
+                {selectedOrder.discount_amount && parseFloat(selectedOrder.discount_amount) > 0 && (
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="subtitle2" color="textSecondary">Discount Amount</Typography>
+                    <Typography variant="body1" color="success.main" sx={{ fontWeight: 'bold' }}>
+                      -{formatCurrency(selectedOrder.discount_amount)}
+                    </Typography>
+                  </Grid>
+                )}
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="subtitle2" color="textSecondary">Final Amount</Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                    {formatCurrency(selectedOrder.amount)}
+                  </Typography>
+                </Grid>
+                {selectedOrder.coupon && (
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="subtitle2" color="textSecondary">Coupon Applied</Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                      <Chip
+                        label={selectedOrder.coupon.code}
+                        color="success"
+                        size="small"
+                      />
+                      <Typography variant="caption" color="textSecondary">
+                        ({selectedOrder.coupon.discount_percentage}% off)
+                      </Typography>
+                    </Box>
+                  </Grid>
+                )}
                 <Grid item xs={12} sm={6}>
                   <Typography variant="subtitle2" color="textSecondary">Currency</Typography>
                   <Typography variant="body1">{selectedOrder.currency}</Typography>

@@ -31,10 +31,14 @@ export const adminService = {
   // Job Management
   getJobs: (params) => api.get('/admin/jobs', { params }),
 
-  // Coupon Management
-  getCoupons: () => api.get('/admin/coupons'),
+  // Coupon Management (New improved system)
+  getCoupons: (params) => api.get('/admin/coupons', { params }),
+  getCoupon: (id) => api.get(`/admin/coupons/${id}`),
+  getPendingCoupons: () => api.get('/admin/coupons/pending'),
   createCoupon: (data) => api.post('/admin/coupons', data),
-  updateCoupon: (id, data) => api.put(`/admin/coupons/${id}`, data),
+  approveCoupon: (id, data) => api.put(`/admin/coupons/${id}/approve`, data),
+  assignUsersToCoupon: (id, data) => api.post(`/admin/coupons/${id}/assign-users`, data),
+  removeUserFromCoupon: (couponId, assignmentId) => api.delete(`/admin/coupons/${couponId}/users/${assignmentId}`),
   deleteCoupon: (id) => api.delete(`/admin/coupons/${id}`),
 
   // Commission Management

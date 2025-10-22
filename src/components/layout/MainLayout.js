@@ -68,13 +68,13 @@ const MainLayout = () => {
     { text: 'Employees', icon: <People />, path: '/employees', roles: null },
     { text: 'Employers', icon: <Business />, path: '/employers', roles: null },
     { text: 'Jobs', icon: <Work />, path: '/jobs', roles: null },
-    { text: 'Coupons', icon: <LocalOffer />, path: '/coupons', roles: 'super_admin' },
+    { text: 'Coupons', icon: <LocalOffer />, path: '/coupons', roles: null },
     { text: 'Commissions', icon: <AttachMoney />, path: '/commissions', roles: null },
     { text: 'CV Requests', icon: <Description />, path: '/cv-requests', roles: null },
     { text: 'Profile Photos', icon: <PhotoCamera />, path: '/profile-photos', roles: null },
-    { text: 'Plans', icon: <CardMembership />, path: '/plans', roles: ['super_admin', 'plan_upgrade_manager'] },
-    { text: 'Orders & Payments', icon: <Payment />, path: '/orders', roles: ['super_admin', 'plan_upgrade_manager'] },
-    { text: 'Catalogs', icon: <Category />, path: '/catalogs', roles: ['super_admin', 'catalog_manager'] }
+    { text: 'Plans', icon: <CardMembership />, path: '/plans', roles: ['super_admin', 'manager'] },
+    { text: 'Orders & Payments', icon: <Payment />, path: '/orders', roles: ['super_admin', 'manager'] },
+    { text: 'Catalogs', icon: <Category />, path: '/catalogs', roles: ['super_admin', 'manager'] }
   ];
 
   const filteredMenuItems = menuItems.filter(item => {

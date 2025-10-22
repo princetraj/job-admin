@@ -13,6 +13,8 @@ import EmployeeList from './pages/employees/EmployeeList';
 import EmployerList from './pages/employers/EmployerList';
 import JobList from './pages/jobs/JobList';
 import CouponList from './pages/coupons/CouponList';
+import CouponDetails from './pages/coupons/CouponDetails';
+import PendingApprovals from './pages/coupons/PendingApprovals';
 import CommissionList from './pages/commissions/CommissionList';
 import CVRequestList from './pages/cv-requests/CVRequestList';
 import ProfilePhotoApproval from './pages/profile-photos/ProfilePhotoApproval';
@@ -70,14 +72,16 @@ function App() {
                 <Route path="employees" element={<EmployeeList />} />
                 <Route path="employers" element={<EmployerList />} />
                 <Route path="jobs" element={<JobList />} />
+                <Route path="coupons" element={<CouponList />} />
                 <Route
-                  path="coupons"
+                  path="coupons/pending"
                   element={
                     <ProtectedRoute roles="super_admin">
-                      <CouponList />
+                      <PendingApprovals />
                     </ProtectedRoute>
                   }
                 />
+                <Route path="coupons/:id" element={<CouponDetails />} />
                 <Route path="commissions" element={<CommissionList />} />
                 <Route path="cv-requests" element={<CVRequestList />} />
                 <Route path="profile-photos" element={<ProfilePhotoApproval />} />

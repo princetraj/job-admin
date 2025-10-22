@@ -8,7 +8,8 @@
       "Bash(php test_admin_create.php:*)",
       "Bash(del \"C:\\wamp64\\www\\jobprotal\\job-portal-api\\test_admin_create.php\")",
       "Bash(del nul)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(composer require:*)"
     ],
     "deny": [],
     "ask": []
