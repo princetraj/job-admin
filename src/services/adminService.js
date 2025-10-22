@@ -6,11 +6,13 @@ export const adminService = {
   getDashboardStats: () => api.get('/admin/dashboard/stats'),
 
   // Admin Management
-  getAdmins: () => api.get('/admin/admins'),
+  getAdmins: (params) => api.get('/admin/admins', { params }),
   getAdmin: (id) => api.get(`/admin/admins/${id}`),
   createAdmin: (data) => api.post('/admin/admins', data),
   updateAdmin: (id, data) => api.put(`/admin/admins/${id}`, data),
   deleteAdmin: (id) => api.delete(`/admin/admins/${id}`),
+  assignStaffToManager: (staffId, data) => api.put(`/admin/admins/${staffId}/assign-manager`, data),
+  getManagers: () => api.get('/admin/managers'),
 
   // Employee Management
   getEmployees: (params) => api.get('/admin/employees', { params }),
