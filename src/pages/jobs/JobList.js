@@ -45,9 +45,34 @@ const JobList = () => {
       headerName: 'Company',
       flex: 1,
       minWidth: 150,
-      valueGetter: (params) => params?.company_name || 'N/A'
+      valueGetter: (value, row) => row?.employer?.company_name || 'N/A'
+    },
+    {
+      field: 'employer_email',
+      headerName: 'Employer Email',
+      flex: 1,
+      minWidth: 180,
+      valueGetter: (value, row) => row?.employer?.email || 'N/A'
+    },
+    {
+      field: 'employer_contact',
+      headerName: 'Employer Contact',
+      width: 150,
+      valueGetter: (value, row) => row?.employer?.contact || 'N/A'
     },
     { field: 'salary', headerName: 'Salary', width: 150 },
+    {
+      field: 'location',
+      headerName: 'Location',
+      width: 150,
+      valueGetter: (value, row) => row?.location?.name || 'N/A'
+    },
+    {
+      field: 'category',
+      headerName: 'Category',
+      width: 150,
+      valueGetter: (value, row) => row?.category?.name || 'N/A'
+    },
     {
       field: 'status',
       headerName: 'Status',

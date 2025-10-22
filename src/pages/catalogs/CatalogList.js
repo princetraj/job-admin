@@ -32,7 +32,7 @@ const CatalogList = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [formData, setFormData] = useState({ name: '', state: '', country: '' });
 
-  const catalogTypes = ['industries', 'locations', 'categories'];
+  const catalogTypes = ['industries', 'locations', 'categories', 'skills'];
   const currentType = catalogTypes[tab];
 
   useEffect(() => {
@@ -45,7 +45,8 @@ const CatalogList = () => {
       let response;
       if (currentType === 'industries') response = await adminService.getIndustries();
       else if (currentType === 'locations') response = await adminService.getLocations();
-      else response = await adminService.getCategories();
+      else if (currentType === 'categories') response = await adminService.getCategories();
+      else response = await adminService.getSkills();
 
       const itemsData = response.data[currentType] || [];
       setItems(Array.isArray(itemsData) ? itemsData : []);
@@ -62,7 +63,8 @@ const CatalogList = () => {
     try {
       if (currentType === 'industries') await adminService.createIndustry(formData);
       else if (currentType === 'locations') await adminService.createLocation(formData);
-      else await adminService.createCategory(formData);
+      else if (currentType === 'categories') await adminService.createCategory(formData);
+      else await adminService.createSkill(formData);
       enqueueSnackbar('Item created successfully', { variant: 'success' });
       setOpenDialog(false);
       fetchItems();
@@ -77,7 +79,8 @@ const CatalogList = () => {
     try {
       if (currentType === 'industries') await adminService.deleteIndustry(id);
       else if (currentType === 'locations') await adminService.deleteLocation(id);
-      else await adminService.deleteCategory(id);
+      else if (currentType === 'categories') await adminService.deleteCategory(id);
+      else await adminService.deleteSkill(id);
       enqueueSnackbar('Item deleted successfully', { variant: 'success' });
       fetchItems();
     } catch (error) {
@@ -98,6 +101,7 @@ const CatalogList = () => {
         <Tab label="Industries" />
         <Tab label="Locations" />
         <Tab label="Categories" />
+        <Tab label="Skills" />
       </Tabs>
 
       {loading ? (

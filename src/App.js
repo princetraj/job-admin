@@ -15,8 +15,11 @@ import JobList from './pages/jobs/JobList';
 import CouponList from './pages/coupons/CouponList';
 import CommissionList from './pages/commissions/CommissionList';
 import CVRequestList from './pages/cv-requests/CVRequestList';
+import ProfilePhotoApproval from './pages/profile-photos/ProfilePhotoApproval';
 import PlanList from './pages/plans/PlanList';
 import CatalogList from './pages/catalogs/CatalogList';
+import OrderList from './pages/orders/OrderList';
+import AdminDiagnostic from './pages/admins/AdminDiagnostic';
 
 const theme = createTheme({
   palette: {
@@ -56,6 +59,14 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="admins/diagnostic"
+                  element={
+                    <ProtectedRoute>
+                      <AdminDiagnostic />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route path="employees" element={<EmployeeList />} />
                 <Route path="employers" element={<EmployerList />} />
                 <Route path="jobs" element={<JobList />} />
@@ -69,10 +80,11 @@ function App() {
                 />
                 <Route path="commissions" element={<CommissionList />} />
                 <Route path="cv-requests" element={<CVRequestList />} />
+                <Route path="profile-photos" element={<ProfilePhotoApproval />} />
                 <Route
                   path="plans"
                   element={
-                    <ProtectedRoute roles={['super_admin', 'plan_upgrade_manager']}>
+                    <ProtectedRoute roles={['super_admin', 'manager']}>
                       <PlanList />
                     </ProtectedRoute>
                   }
@@ -80,8 +92,16 @@ function App() {
                 <Route
                   path="catalogs"
                   element={
-                    <ProtectedRoute roles={['super_admin', 'catalog_manager']}>
+                    <ProtectedRoute roles={['super_admin', 'manager']}>
                       <CatalogList />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="orders"
+                  element={
+                    <ProtectedRoute roles={['super_admin', 'manager']}>
+                      <OrderList />
                     </ProtectedRoute>
                   }
                 />

@@ -30,7 +30,9 @@ import {
   Category,
   AccountCircle,
   Logout,
-  AdminPanelSettings
+  AdminPanelSettings,
+  PhotoCamera,
+  Payment
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -69,7 +71,9 @@ const MainLayout = () => {
     { text: 'Coupons', icon: <LocalOffer />, path: '/coupons', roles: 'super_admin' },
     { text: 'Commissions', icon: <AttachMoney />, path: '/commissions', roles: null },
     { text: 'CV Requests', icon: <Description />, path: '/cv-requests', roles: null },
+    { text: 'Profile Photos', icon: <PhotoCamera />, path: '/profile-photos', roles: null },
     { text: 'Plans', icon: <CardMembership />, path: '/plans', roles: ['super_admin', 'plan_upgrade_manager'] },
+    { text: 'Orders & Payments', icon: <Payment />, path: '/orders', roles: ['super_admin', 'plan_upgrade_manager'] },
     { text: 'Catalogs', icon: <Category />, path: '/catalogs', roles: ['super_admin', 'catalog_manager'] }
   ];
 

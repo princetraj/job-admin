@@ -17,12 +17,14 @@ export const adminService = {
   getEmployee: (id) => api.get(`/admin/employees/${id}`),
   updateEmployee: (id, data) => api.put(`/admin/employees/${id}`, data),
   deleteEmployee: (id) => api.delete(`/admin/employees/${id}`),
+  upgradeEmployeePlan: (id, data) => api.post(`/admin/employees/${id}/upgrade-plan`, data),
 
   // Employer Management
   getEmployers: (params) => api.get('/admin/employers', { params }),
   getEmployer: (id) => api.get(`/admin/employers/${id}`),
   updateEmployer: (id, data) => api.put(`/admin/employers/${id}`, data),
   deleteEmployer: (id) => api.delete(`/admin/employers/${id}`),
+  upgradeEmployerPlan: (id, data) => api.post(`/admin/employers/${id}/upgrade-plan`, data),
 
   // Job Management
   getJobs: (params) => api.get('/admin/jobs', { params }),
@@ -64,5 +66,22 @@ export const adminService = {
   getCategories: () => api.get('/catalogs/categories'),
   createCategory: (data) => api.post('/catalogs/categories', data),
   updateCategory: (id, data) => api.put(`/catalogs/categories/${id}`, data),
-  deleteCategory: (id) => api.delete(`/catalogs/categories/${id}`)
+  deleteCategory: (id) => api.delete(`/catalogs/categories/${id}`),
+
+  getSkills: () => api.get('/catalogs/skills'),
+  createSkill: (data) => api.post('/catalogs/skills', data),
+  updateSkill: (id, data) => api.put(`/catalogs/skills/${id}`, data),
+  deleteSkill: (id) => api.delete(`/catalogs/skills/${id}`),
+
+  // Profile Photo Approval
+  getProfilePhotos: (status = 'pending') => api.get('/admin/profile-photos', { params: { status } }),
+  getPendingProfilePhotos: () => api.get('/admin/profile-photos/pending'),
+  updateProfilePhotoStatus: (employeeId, data) => api.put(`/admin/profile-photos/${employeeId}/status`, data),
+
+  // Plan Orders & Transactions
+  getPlanOrders: (params) => api.get('/admin/plan-orders', { params }),
+  getPlanOrder: (id) => api.get(`/admin/plan-orders/${id}`),
+  getPaymentTransactions: (params) => api.get('/admin/payment-transactions', { params }),
+  getPaymentTransaction: (id) => api.get(`/admin/payment-transactions/${id}`),
+  getPaymentStats: () => api.get('/admin/payment-stats')
 };

@@ -28,10 +28,8 @@ import dayjs from 'dayjs';
 
 const roles = [
   { value: 'super_admin', label: 'Super Admin' },
-  { value: 'employee_manager', label: 'Employee Manager' },
-  { value: 'employer_manager', label: 'Employer Manager' },
-  { value: 'plan_upgrade_manager', label: 'Plan Upgrade Manager' },
-  { value: 'catalog_manager', label: 'Catalog Manager' }
+  { value: 'manager', label: 'Manager' },
+  { value: 'staff', label: 'Staff' }
 ];
 
 const AdminList = () => {
@@ -44,7 +42,7 @@ const AdminList = () => {
     name: '',
     email: '',
     password: '',
-    role: 'employee_manager'
+    role: 'staff'
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -81,7 +79,7 @@ const AdminList = () => {
         name: '',
         email: '',
         password: '',
-        role: 'employee_manager'
+        role: 'staff'
       });
     }
     setOpenDialog(true);
@@ -120,7 +118,19 @@ const AdminList = () => {
       handleCloseDialog();
       fetchAdmins();
     } catch (error) {
-      const message = error.response?.data?.message || 'Operation failed';
+      console.error('Admin creation error:', error);
+      console.error('Error response:', error.response);
+
+      let message = 'Operation failed';
+
+      if (error.response?.data?.errors) {
+        // Validation errors
+        const errors = error.response.data.errors;
+        message = Object.values(errors).flat().join(', ');
+      } else if (error.response?.data?.message) {
+        message = error.response.data.message;
+      }
+
       enqueueSnackbar(message, { variant: 'error' });
     } finally {
       setSubmitting(false);
@@ -145,10 +155,8 @@ const AdminList = () => {
   const getRoleColor = (role) => {
     switch (role) {
       case 'super_admin': return 'error';
-      case 'employee_manager': return 'primary';
-      case 'employer_manager': return 'secondary';
-      case 'plan_upgrade_manager': return 'success';
-      case 'catalog_manager': return 'warning';
+      case 'manager': return 'primary';
+      case 'staff': return 'secondary';
       default: return 'default';
     }
   };
