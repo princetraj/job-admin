@@ -43,6 +43,7 @@ export const adminService = {
 
   // Commission Management
   getAllCommissions: (params) => api.get('/admin/commissions/all', { params }),
+  getManagerCommissions: (params) => api.get('/admin/commissions/manager', { params }),
   getMyCommissions: () => api.get('/admin/commissions/my'),
   addManualCommission: (data) => api.post('/admin/commissions/manual', data),
 
