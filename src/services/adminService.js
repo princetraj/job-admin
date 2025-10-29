@@ -75,10 +75,13 @@ export const adminService = {
   updateCategory: (id, data) => api.put(`/catalogs/categories/${id}`, data),
   deleteCategory: (id) => api.delete(`/catalogs/categories/${id}`),
 
-  getSkills: () => api.get('/catalogs/skills'),
+  getSkills: (status) => api.get('/catalogs/skills', { params: status ? { status } : {} }),
   createSkill: (data) => api.post('/catalogs/skills', data),
   updateSkill: (id, data) => api.put(`/catalogs/skills/${id}`, data),
   deleteSkill: (id) => api.delete(`/catalogs/skills/${id}`),
+  getPendingSkills: () => api.get('/catalogs/skills/pending'),
+  approveSkill: (id) => api.put(`/catalogs/skills/${id}/approve`),
+  rejectSkill: (id, data) => api.put(`/catalogs/skills/${id}/reject`, data),
 
   // Profile Photo Approval
   getProfilePhotos: (status = 'pending') => api.get('/admin/profile-photos', { params: { status } }),
