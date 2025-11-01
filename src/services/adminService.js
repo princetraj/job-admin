@@ -83,6 +83,36 @@ export const adminService = {
   approveSkill: (id) => api.put(`/catalogs/skills/${id}/approve`),
   rejectSkill: (id, data) => api.put(`/catalogs/skills/${id}/reject`, data),
 
+  // Degrees
+  getDegrees: (status) => api.get('/catalogs/degrees', { params: status ? { status } : {} }),
+  createDegree: (data) => api.post('/catalogs/degrees', data),
+  updateDegree: (id, data) => api.put(`/catalogs/degrees/${id}`, data),
+  deleteDegree: (id) => api.delete(`/catalogs/degrees/${id}`),
+  approveDegree: (id) => api.put(`/catalogs/degrees/${id}/approve`),
+  rejectDegree: (id, data) => api.put(`/catalogs/degrees/${id}/reject`, data),
+
+  // Universities
+  getUniversities: (status) => api.get('/catalogs/universities', { params: status ? { status } : {} }),
+  createUniversity: (data) => api.post('/catalogs/universities', data),
+  updateUniversity: (id, data) => api.put(`/catalogs/universities/${id}`, data),
+  deleteUniversity: (id) => api.delete(`/catalogs/universities/${id}`),
+  approveUniversity: (id) => api.put(`/catalogs/universities/${id}/approve`),
+  rejectUniversity: (id, data) => api.put(`/catalogs/universities/${id}/reject`, data),
+
+  // Field of Studies
+  getFieldOfStudies: (status) => api.get('/catalogs/field-of-studies', { params: status ? { status } : {} }),
+  createFieldOfStudy: (data) => api.post('/catalogs/field-of-studies', data),
+  updateFieldOfStudy: (id, data) => api.put(`/catalogs/field-of-studies/${id}`, data),
+  deleteFieldOfStudy: (id) => api.delete(`/catalogs/field-of-studies/${id}`),
+  approveFieldOfStudy: (id) => api.put(`/catalogs/field-of-studies/${id}/approve`),
+  rejectFieldOfStudy: (id, data) => api.put(`/catalogs/field-of-studies/${id}/reject`, data),
+
+  // Education Levels (Admin only - no approval workflow)
+  getEducationLevels: (status) => api.get('/catalogs/education-levels', { params: status ? { status } : {} }),
+  createEducationLevel: (data) => api.post('/catalogs/education-levels', data),
+  updateEducationLevel: (id, data) => api.put(`/catalogs/education-levels/${id}`, data),
+  deleteEducationLevel: (id) => api.delete(`/catalogs/education-levels/${id}`),
+
   // Profile Photo Approval
   getProfilePhotos: (status = 'pending') => api.get('/admin/profile-photos', { params: { status } }),
   getPendingProfilePhotos: () => api.get('/admin/profile-photos/pending'),
