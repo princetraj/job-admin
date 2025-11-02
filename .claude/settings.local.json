@@ -11,7 +11,9 @@
       "Bash(rm:*)",
       "Bash(composer require:*)",
       "Bash(findstr:*)",
-      "Bash(more:*)"
+      "Bash(more:*)",
+      "Bash(dir:*)",
+      "Bash(composer show:*)"
     ],
     "deny": [],
     "ask": []

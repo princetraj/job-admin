@@ -19,14 +19,18 @@ export const adminService = {
   getEmployee: (id) => api.get(`/admin/employees/${id}`),
   updateEmployee: (id, data) => api.put(`/admin/employees/${id}`, data),
   deleteEmployee: (id) => api.delete(`/admin/employees/${id}`),
+  approveEmployee: (id) => api.put(`/admin/employees/${id}/approve`),
   upgradeEmployeePlan: (id, data) => api.post(`/admin/employees/${id}/upgrade-plan`, data),
+  exportEmployees: (params) => api.get('/admin/employees/export', { params, responseType: 'blob' }),
 
   // Employer Management
   getEmployers: (params) => api.get('/admin/employers', { params }),
   getEmployer: (id) => api.get(`/admin/employers/${id}`),
   updateEmployer: (id, data) => api.put(`/admin/employers/${id}`, data),
   deleteEmployer: (id) => api.delete(`/admin/employers/${id}`),
+  approveEmployer: (id) => api.put(`/admin/employers/${id}/approve`),
   upgradeEmployerPlan: (id, data) => api.post(`/admin/employers/${id}/upgrade-plan`, data),
+  exportEmployers: (params) => api.get('/admin/employers/export', { params, responseType: 'blob' }),
 
   // Job Management
   getJobs: (params) => api.get('/admin/jobs', { params }),

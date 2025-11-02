@@ -14,10 +14,11 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel
+  InputLabel,
+  Grid
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { Visibility, Delete, Upgrade } from '@mui/icons-material';
+import { Visibility, Delete, Upgrade, CheckCircle, FilterList, Download } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import { adminService } from '../../services/adminService';
 import dayjs from 'dayjs';
@@ -36,17 +37,48 @@ const EmployerList = () => {
   const [selectedPlan, setSelectedPlan] = useState('');
   const [upgrading, setUpgrading] = useState(false);
 
+  // Filter states
+  const [filters, setFilters] = useState({
+    dateFrom: '',
+    dateTo: '',
+    planId: '',
+    accountStatus: ''
+  });
+  const [allPlans, setAllPlans] = useState([]);
+
   useEffect(() => {
     fetchEmployers();
-  }, [paginationModel.page, search]);
+  }, [paginationModel.page, search, filters]);
+
+  useEffect(() => {
+    fetchAllPlans();
+  }, []);
+
+  const fetchAllPlans = async () => {
+    try {
+      const response = await adminService.getPlans();
+      const employerPlans = response.data.plans.filter(plan => plan.type === 'employer');
+      setAllPlans(employerPlans);
+    } catch (error) {
+      console.error('Failed to load plans for filters', error);
+    }
+  };
 
   const fetchEmployers = async () => {
     setLoading(true);
     try {
-      const response = await adminService.getEmployers({
+      const params = {
         page: paginationModel.page + 1,
         search
-      });
+      };
+
+      // Add filters to params
+      if (filters.dateFrom) params.date_from = filters.dateFrom;
+      if (filters.dateTo) params.date_to = filters.dateTo;
+      if (filters.planId) params.plan_id = filters.planId;
+      if (filters.accountStatus) params.account_status = filters.accountStatus;
+
+      const response = await adminService.getEmployers(params);
       const employersData = response.data.employers.data || response.data.employers || [];
       setEmployers(Array.isArray(employersData) ? employersData : []);
       setRowCount(response.data.employers.total || 0);
@@ -56,6 +88,48 @@ const EmployerList = () => {
       setRowCount(0);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFilterChange = (field, value) => {
+    setFilters(prev => ({ ...prev, [field]: value }));
+    setPaginationModel(prev => ({ ...prev, page: 0 })); // Reset to first page
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      dateFrom: '',
+      dateTo: '',
+      planId: '',
+      accountStatus: ''
+    });
+    setPaginationModel(prev => ({ ...prev, page: 0 }));
+  };
+
+  const handleExportToExcel = async () => {
+    try {
+      const params = { search };
+
+      // Add filters to params
+      if (filters.dateFrom) params.date_from = filters.dateFrom;
+      if (filters.dateTo) params.date_to = filters.dateTo;
+      if (filters.planId) params.plan_id = filters.planId;
+      if (filters.accountStatus) params.account_status = filters.accountStatus;
+
+      const response = await adminService.exportEmployers(params);
+
+      // Create blob link to download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `employers_${new Date().toISOString().split('T')[0]}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      enqueueSnackbar('Employers exported successfully', { variant: 'success' });
+    } catch (error) {
+      enqueueSnackbar('Failed to export employers', { variant: 'error' });
     }
   };
 
@@ -80,6 +154,16 @@ const EmployerList = () => {
       fetchEmployers();
     } catch (error) {
       enqueueSnackbar('Failed to delete employer', { variant: 'error' });
+    }
+  };
+
+  const handleApprove = async (id) => {
+    try {
+      await adminService.approveEmployer(id);
+      enqueueSnackbar('Employer approved successfully', { variant: 'success' });
+      fetchEmployers();
+    } catch (error) {
+      enqueueSnackbar('Failed to approve employer', { variant: 'error' });
     }
   };
 
@@ -168,6 +252,26 @@ const EmployerList = () => {
       )
     },
     {
+      field: 'account_status',
+      headerName: 'Account',
+      width: 100,
+      renderCell: (params) => {
+        const status = params.row.account_status || 'pending';
+        const colorMap = {
+          approved: 'success',
+          pending: 'warning',
+          rejected: 'error'
+        };
+        return (
+          <Chip
+            label={status.charAt(0).toUpperCase() + status.slice(1)}
+            size="small"
+            color={colorMap[status] || 'default'}
+          />
+        );
+      }
+    },
+    {
       field: 'plan_expires_at',
       headerName: 'Plan Expires',
       width: 130,
@@ -196,13 +300,18 @@ const EmployerList = () => {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 160,
+      width: 200,
       sortable: false,
       renderCell: (params) => (
         <>
           <IconButton size="small" onClick={() => handleViewDetails(params.row.id)} title="View Details">
             <Visibility />
           </IconButton>
+          {params.row.account_status !== 'approved' && (
+            <IconButton size="small" color="success" onClick={() => handleApprove(params.row.id)} title="Approve">
+              <CheckCircle />
+            </IconButton>
+          )}
           <IconButton size="small" color="primary" onClick={() => handleOpenUpgradeDialog(params.row)} title="Upgrade Plan">
             <Upgrade />
           </IconButton>
@@ -217,13 +326,88 @@ const EmployerList = () => {
   return (
     <Box>
       <Typography variant="h4" gutterBottom>Employer Management</Typography>
-      <Box sx={{ mb: 2 }}>
-        <TextField
-          label="Search employers"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          sx={{ width: 300 }}
-        />
+      <Box sx={{ mb: 3 }}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} sm={6} md={3}>
+            <TextField
+              label="Search employers"
+              variant="outlined"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              fullWidth
+              sx={{ minWidth: 200 }}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={2}>
+            <TextField
+              label="Date From"
+              type="date"
+              value={filters.dateFrom}
+              onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              sx={{ minWidth: 150 }}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={2}>
+            <TextField
+              label="Date To"
+              type="date"
+              value={filters.dateTo}
+              onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              sx={{ minWidth: 150 }}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={2.5}>
+            <FormControl fullWidth sx={{ minWidth: 200 }}>
+              <InputLabel>Plan</InputLabel>
+              <Select
+                value={filters.planId}
+                onChange={(e) => handleFilterChange('planId', e.target.value)}
+                label="Plan"
+              >
+                <MenuItem value="">All Plans</MenuItem>
+                {allPlans.map((plan) => (
+                  <MenuItem key={plan.id} value={plan.id}>
+                    {plan.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={2.5}>
+            <FormControl fullWidth sx={{ minWidth: 200 }}>
+              <InputLabel>Approval Status</InputLabel>
+              <Select
+                value={filters.accountStatus}
+                onChange={(e) => handleFilterChange('accountStatus', e.target.value)}
+                label="Approval Status"
+              >
+                <MenuItem value="">All Status</MenuItem>
+                <MenuItem value="approved">Approved</MenuItem>
+                <MenuItem value="pending">Pending</MenuItem>
+                <MenuItem value="rejected">Rejected</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+
+        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+          <Button
+            variant="contained"
+            color="success"
+            startIcon={<Download />}
+            onClick={handleExportToExcel}
+          >
+            Export to Excel
+          </Button>
+        </Box>
       </Box>
       <Box sx={{ height: 700, width: '100%' }}>
         <DataGrid
