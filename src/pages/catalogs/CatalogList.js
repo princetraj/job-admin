@@ -37,7 +37,7 @@ const CatalogList = () => {
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
 
-  const catalogTypes = ['industries', 'locations', 'categories', 'skills', 'degrees', 'universities', 'field_of_studies', 'education_levels'];
+  const catalogTypes = ['industries', 'locations', 'categories', 'skills', 'degrees', 'universities', 'field_of_studies', 'education_levels', 'companies', 'job_titles'];
   const currentType = catalogTypes[tab];
 
   useEffect(() => {
@@ -56,6 +56,8 @@ const CatalogList = () => {
       else if (currentType === 'universities') response = await adminService.getUniversities();
       else if (currentType === 'field_of_studies') response = await adminService.getFieldOfStudies();
       else if (currentType === 'education_levels') response = await adminService.getEducationLevels();
+      else if (currentType === 'companies') response = await adminService.getCompanies();
+      else if (currentType === 'job_titles') response = await adminService.getJobTitles();
 
       const itemsData = response.data[currentType] || [];
       setItems(Array.isArray(itemsData) ? itemsData : []);
@@ -111,6 +113,8 @@ const CatalogList = () => {
       else if (currentType === 'degrees') await adminService.approveDegree(id);
       else if (currentType === 'universities') await adminService.approveUniversity(id);
       else if (currentType === 'field_of_studies') await adminService.approveFieldOfStudy(id);
+      else if (currentType === 'companies') await adminService.approveCompany(id);
+      else if (currentType === 'job_titles') await adminService.approveJobTitle(id);
 
       const typeName = currentType.slice(0, -1);
       enqueueSnackbar(`${typeName.charAt(0).toUpperCase() + typeName.slice(1)} approved successfully`, { variant: 'success' });
@@ -126,6 +130,8 @@ const CatalogList = () => {
       else if (currentType === 'degrees') await adminService.rejectDegree(selectedSkill.id, { rejection_reason: rejectionReason });
       else if (currentType === 'universities') await adminService.rejectUniversity(selectedSkill.id, { rejection_reason: rejectionReason });
       else if (currentType === 'field_of_studies') await adminService.rejectFieldOfStudy(selectedSkill.id, { rejection_reason: rejectionReason });
+      else if (currentType === 'companies') await adminService.rejectCompany(selectedSkill.id, { rejection_reason: rejectionReason });
+      else if (currentType === 'job_titles') await adminService.rejectJobTitle(selectedSkill.id, { rejection_reason: rejectionReason });
 
       const typeName = currentType.slice(0, -1);
       enqueueSnackbar(`${typeName.charAt(0).toUpperCase() + typeName.slice(1)} rejected`, { variant: 'success' });
@@ -166,6 +172,8 @@ const CatalogList = () => {
         <Tab label="Universities" />
         <Tab label="Fields of Study" />
         <Tab label="Education Levels" />
+        <Tab label="Companies" />
+        <Tab label="Job Titles" />
       </Tabs>
 
       {loading ? (
@@ -182,7 +190,7 @@ const CatalogList = () => {
                     <TableCell>Country</TableCell>
                   </>
                 )}
-                {(currentType === 'skills' || currentType === 'degrees' || currentType === 'universities' || currentType === 'field_of_studies') && (
+                {(currentType === 'skills' || currentType === 'degrees' || currentType === 'universities' || currentType === 'field_of_studies' || currentType === 'companies' || currentType === 'job_titles') && (
                   <>
                     <TableCell>Status</TableCell>
                     <TableCell>Created By</TableCell>
@@ -207,7 +215,7 @@ const CatalogList = () => {
                       <TableCell>{item.country}</TableCell>
                     </>
                   )}
-                  {(currentType === 'skills' || currentType === 'degrees' || currentType === 'universities' || currentType === 'field_of_studies') && (
+                  {(currentType === 'skills' || currentType === 'degrees' || currentType === 'universities' || currentType === 'field_of_studies' || currentType === 'companies' || currentType === 'job_titles') && (
                     <>
                       <TableCell>{getStatusChip(item.approval_status)}</TableCell>
                       <TableCell>
@@ -232,7 +240,7 @@ const CatalogList = () => {
                     </>
                   )}
                   <TableCell align="right">
-                    {(currentType === 'skills' || currentType === 'degrees' || currentType === 'universities' || currentType === 'field_of_studies') && item.approval_status === 'pending' && (
+                    {(currentType === 'skills' || currentType === 'degrees' || currentType === 'universities' || currentType === 'field_of_studies' || currentType === 'companies' || currentType === 'job_titles') && item.approval_status === 'pending' && (
                       <>
                         <Tooltip title="Approve">
                           <IconButton size="small" color="success" onClick={() => handleApprove(item.id)}>

@@ -113,6 +113,22 @@ export const adminService = {
   updateEducationLevel: (id, data) => api.put(`/catalogs/education-levels/${id}`, data),
   deleteEducationLevel: (id) => api.delete(`/catalogs/education-levels/${id}`),
 
+  // Companies
+  getCompanies: (status) => api.get('/catalogs/companies', { params: status ? { status } : {} }),
+  createCompany: (data) => api.post('/catalogs/companies', data),
+  updateCompany: (id, data) => api.put(`/catalogs/companies/${id}`, data),
+  deleteCompany: (id) => api.delete(`/catalogs/companies/${id}`),
+  approveCompany: (id) => api.put(`/catalogs/companies/${id}/approve`),
+  rejectCompany: (id, data) => api.put(`/catalogs/companies/${id}/reject`, data),
+
+  // Job Titles
+  getJobTitles: (status) => api.get('/catalogs/job-titles', { params: status ? { status } : {} }),
+  createJobTitle: (data) => api.post('/catalogs/job-titles', data),
+  updateJobTitle: (id, data) => api.put(`/catalogs/job-titles/${id}`, data),
+  deleteJobTitle: (id) => api.delete(`/catalogs/job-titles/${id}`),
+  approveJobTitle: (id) => api.put(`/catalogs/job-titles/${id}/approve`),
+  rejectJobTitle: (id, data) => api.put(`/catalogs/job-titles/${id}/reject`, data),
+
   // Profile Photo Approval
   getProfilePhotos: (status = 'pending') => api.get('/admin/profile-photos', { params: { status } }),
   getPendingProfilePhotos: () => api.get('/admin/profile-photos/pending'),
