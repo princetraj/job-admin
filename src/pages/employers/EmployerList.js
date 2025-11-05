@@ -18,10 +18,12 @@ import {
   Grid
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { Visibility, Delete, Upgrade, CheckCircle, FilterList, Download } from '@mui/icons-material';
+import { Visibility, Delete, Upgrade, CheckCircle, FilterList, Download, Add, WorkOutline, List } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import { adminService } from '../../services/adminService';
 import dayjs from 'dayjs';
+import AddEmployerDialog from '../../components/AddEmployerDialog';
+import AddJobDialog from '../../components/AddJobDialog';
 
 const EmployerList = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -36,6 +38,12 @@ const EmployerList = () => {
   const [availablePlans, setAvailablePlans] = useState([]);
   const [selectedPlan, setSelectedPlan] = useState('');
   const [upgrading, setUpgrading] = useState(false);
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [openAddJobDialog, setOpenAddJobDialog] = useState(false);
+  const [selectedEmployerForJob, setSelectedEmployerForJob] = useState(null);
+  const [openJobsDialog, setOpenJobsDialog] = useState(false);
+  const [employerJobs, setEmployerJobs] = useState([]);
+  const [loadingJobs, setLoadingJobs] = useState(false);
 
   // Filter states
   const [filters, setFilters] = useState({
@@ -199,6 +207,26 @@ const EmployerList = () => {
     }
   };
 
+  const handleOpenAddJobDialog = (employer) => {
+    setSelectedEmployerForJob(employer);
+    setOpenAddJobDialog(true);
+  };
+
+  const handleViewJobs = async (employer) => {
+    setSelectedEmployer(employer);
+    setOpenJobsDialog(true);
+    setLoadingJobs(true);
+    try {
+      const response = await adminService.getEmployer(employer.id);
+      setEmployerJobs(response.data.employer.jobs || []);
+    } catch (error) {
+      enqueueSnackbar('Failed to load jobs', { variant: 'error' });
+      setEmployerJobs([]);
+    } finally {
+      setLoadingJobs(false);
+    }
+  };
+
   const getPlanStatusColor = (employer) => {
     if (!employer.plan) return 'default';
     if (!employer.plan_is_active) return 'error';
@@ -218,6 +246,31 @@ const EmployerList = () => {
     { field: 'company_name', headerName: 'Company Name', flex: 1, minWidth: 200 },
     { field: 'email', headerName: 'Email', flex: 1, minWidth: 200 },
     { field: 'contact', headerName: 'Contact', width: 130 },
+    {
+      field: 'added_by',
+      headerName: 'Added By',
+      width: 180,
+      renderCell: (params) => {
+        if (params.row.added_by_admin_id) {
+          return (
+            <Box>
+              <Chip
+                label="Admin"
+                size="small"
+                color="info"
+                sx={{ mb: 0.5 }}
+              />
+              {params.row.added_by_admin && (
+                <Typography variant="caption" display="block" color="text.secondary">
+                  {params.row.added_by_admin.name}
+                </Typography>
+              )}
+            </Box>
+          );
+        }
+        return <Chip label="Self Registered" size="small" color="default" />;
+      }
+    },
     {
       field: 'plan',
       headerName: 'Plan',
@@ -300,12 +353,18 @@ const EmployerList = () => {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 200,
+      width: 250,
       sortable: false,
       renderCell: (params) => (
         <>
           <IconButton size="small" onClick={() => handleViewDetails(params.row.id)} title="View Details">
             <Visibility />
+          </IconButton>
+          <IconButton size="small" color="info" onClick={() => handleViewJobs(params.row)} title="View Jobs">
+            <List />
+          </IconButton>
+          <IconButton size="small" color="secondary" onClick={() => handleOpenAddJobDialog(params.row)} title="Add Job">
+            <WorkOutline />
           </IconButton>
           {params.row.account_status !== 'approved' && (
             <IconButton size="small" color="success" onClick={() => handleApprove(params.row.id)} title="Approve">
@@ -325,7 +384,20 @@ const EmployerList = () => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>Employer Management</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4">
+          Employer Management
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<Add />}
+          onClick={() => setOpenAddDialog(true)}
+        >
+          Add Employer
+        </Button>
+      </Box>
+
       <Box sx={{ mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} sm={6} md={3}>
@@ -473,10 +545,33 @@ const EmployerList = () => {
                 <Typography><strong>Website:</strong> {selectedEmployer.website}</Typography>
               )}
               {selectedEmployer.address && (
-                <Typography><strong>Address:</strong> {selectedEmployer.address}</Typography>
+                <Typography>
+                  <strong>Address:</strong>{' '}
+                  {[
+                    selectedEmployer.address.street,
+                    selectedEmployer.address.city,
+                    selectedEmployer.address.state,
+                    selectedEmployer.address.zip,
+                    selectedEmployer.address.country
+                  ].filter(Boolean).join(', ')}
+                </Typography>
               )}
               {selectedEmployer.industry && (
                 <Typography><strong>Industry:</strong> {selectedEmployer.industry.name}</Typography>
+              )}
+              {selectedEmployer.added_by_admin_id && (
+                <Typography>
+                  <strong>Created By:</strong> {selectedEmployer.added_by_admin ?
+                    `${selectedEmployer.added_by_admin.name} (${selectedEmployer.added_by_admin.email})` :
+                    `Admin (ID: ${selectedEmployer.added_by_admin_id})`}
+                  <Chip label="Admin Created" size="small" color="info" sx={{ ml: 1 }} />
+                </Typography>
+              )}
+              {!selectedEmployer.added_by_admin_id && (
+                <Typography>
+                  <strong>Registration:</strong> Self-registered
+                  <Chip label="Self Registered" size="small" color="default" sx={{ ml: 1 }} />
+                </Typography>
               )}
 
               {/* Plan Information */}
@@ -541,6 +636,130 @@ const EmployerList = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      <AddEmployerDialog
+        open={openAddDialog}
+        onClose={() => setOpenAddDialog(false)}
+        onSuccess={fetchEmployers}
+      />
+
+      <AddJobDialog
+        open={openAddJobDialog}
+        onClose={() => setOpenAddJobDialog(false)}
+        employer={selectedEmployerForJob}
+        onSuccess={fetchEmployers}
+      />
+
+      {/* Jobs Dialog */}
+      <Dialog open={openJobsDialog} onClose={() => setOpenJobsDialog(false)} maxWidth="lg" fullWidth>
+        <DialogTitle>
+          Jobs Posted by {selectedEmployer?.company_name}
+        </DialogTitle>
+        <DialogContent>
+          {loadingJobs ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : employerJobs.length === 0 ? (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                No Jobs Posted Yet
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                This employer hasn't posted any jobs yet.
+              </Typography>
+            </Box>
+          ) : (
+            <Box sx={{ mt: 2 }}>
+              {employerJobs.map((job, index) => (
+                <Box
+                  key={job.id}
+                  sx={{
+                    p: 2,
+                    mb: 2,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                    bgcolor: 'background.paper',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 1 }}>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="h6" sx={{ mb: 0.5 }}>
+                        {index + 1}. {job.title}
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
+                        {job.location && (
+                          <Chip
+                            label={`📍 ${job.location.name}, ${job.location.state}`}
+                            size="small"
+                            variant="outlined"
+                          />
+                        )}
+                        {job.category && (
+                          <Chip
+                            label={`📂 ${job.category.name}`}
+                            size="small"
+                            variant="outlined"
+                          />
+                        )}
+                        {job.salary && (
+                          <Chip
+                            label={`💰 ${job.salary}`}
+                            size="small"
+                            variant="outlined"
+                            color="success"
+                          />
+                        )}
+                        {job.is_featured && (
+                          <Chip
+                            label="⭐ Featured"
+                            size="small"
+                            color="warning"
+                          />
+                        )}
+                      </Box>
+                    </Box>
+                    <Chip
+                      label={`Posted: ${dayjs(job.created_at).format('MMM D, YYYY')}`}
+                      size="small"
+                      color="primary"
+                      variant="outlined"
+                    />
+                  </Box>
+                  <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>
+                    {job.description.length > 300
+                      ? job.description.substring(0, 300) + '...'
+                      : job.description}
+                  </Typography>
+                  {job.applications_count !== undefined && (
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                      {job.applications_count} application{job.applications_count !== 1 ? 's' : ''}
+                    </Typography>
+                  )}
+                </Box>
+              ))}
+              <Box sx={{ mt: 2, p: 2, bgcolor: 'info.light', borderRadius: 1 }}>
+                <Typography variant="body2">
+                  <strong>Total Jobs:</strong> {employerJobs.length}
+                  {selectedEmployer?.plan && (
+                    <>
+                      {' | '}
+                      <strong>Plan Limit:</strong>{' '}
+                      {selectedEmployer.plan.jobs_can_post === -1
+                        ? 'Unlimited'
+                        : `${employerJobs.length}/${selectedEmployer.plan.jobs_can_post}`}
+                    </>
+                  )}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenJobsDialog(false)}>Close</Button>
         </DialogActions>
       </Dialog>
     </Box>

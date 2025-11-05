@@ -17,6 +17,7 @@ export const adminService = {
   // Employee Management
   getEmployees: (params) => api.get('/admin/employees', { params }),
   getEmployee: (id) => api.get(`/admin/employees/${id}`),
+  createEmployee: (data) => api.post('/admin/employees', data),
   updateEmployee: (id, data) => api.put(`/admin/employees/${id}`, data),
   deleteEmployee: (id) => api.delete(`/admin/employees/${id}`),
   approveEmployee: (id) => api.put(`/admin/employees/${id}/approve`),
@@ -26,6 +27,7 @@ export const adminService = {
   // Employer Management
   getEmployers: (params) => api.get('/admin/employers', { params }),
   getEmployer: (id) => api.get(`/admin/employers/${id}`),
+  addEmployer: (data) => api.post('/admin/employers', data),
   updateEmployer: (id, data) => api.put(`/admin/employers/${id}`, data),
   deleteEmployer: (id) => api.delete(`/admin/employers/${id}`),
   approveEmployer: (id) => api.put(`/admin/employers/${id}/approve`),
@@ -34,6 +36,7 @@ export const adminService = {
 
   // Job Management
   getJobs: (params) => api.get('/admin/jobs', { params }),
+  addJobForEmployer: (employerId, data) => api.post(`/admin/employers/${employerId}/jobs`, data),
 
   // Coupon Management (New improved system)
   getCoupons: (params) => api.get('/admin/coupons', { params }),

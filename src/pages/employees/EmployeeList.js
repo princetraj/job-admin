@@ -18,10 +18,11 @@ import {
   Grid
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { Edit, Delete, Visibility, Upgrade, CheckCircle, FilterList, Download } from '@mui/icons-material';
+import { Edit, Delete, Visibility, Upgrade, CheckCircle, FilterList, Download, Add } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import { adminService } from '../../services/adminService';
 import dayjs from 'dayjs';
+import AddEmployeeDialog from '../../components/AddEmployeeDialog';
 
 const EmployeeList = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -39,6 +40,7 @@ const EmployeeList = () => {
   const [availablePlans, setAvailablePlans] = useState([]);
   const [selectedPlan, setSelectedPlan] = useState('');
   const [upgrading, setUpgrading] = useState(false);
+  const [openAddDialog, setOpenAddDialog] = useState(false);
 
   // Filter states
   const [filters, setFilters] = useState({
@@ -222,6 +224,31 @@ const EmployeeList = () => {
     { field: 'email', headerName: 'Email', flex: 1, minWidth: 200 },
     { field: 'mobile', headerName: 'Mobile', width: 130 },
     {
+      field: 'added_by',
+      headerName: 'Added By',
+      width: 180,
+      renderCell: (params) => {
+        if (params.row.created_by_admin_id) {
+          return (
+            <Box>
+              <Chip
+                label="Admin"
+                size="small"
+                color="info"
+                sx={{ mb: 0.5 }}
+              />
+              {params.row.created_by_admin && (
+                <Typography variant="caption" display="block" color="text.secondary">
+                  {params.row.created_by_admin.name}
+                </Typography>
+              )}
+            </Box>
+          );
+        }
+        return <Chip label="Self Registered" size="small" color="default" />;
+      }
+    },
+    {
       field: 'plan',
       headerName: 'Plan',
       width: 180,
@@ -328,9 +355,19 @@ const EmployeeList = () => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
-        Employee Management
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4">
+          Employee Management
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<Add />}
+          onClick={() => setOpenAddDialog(true)}
+        >
+          Add Employee
+        </Button>
+      </Box>
 
       <Box sx={{ mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
@@ -478,6 +515,20 @@ const EmployeeList = () => {
               <Typography><strong>Mobile:</strong> {selectedEmployee.mobile}</Typography>
               <Typography><strong>Gender:</strong> {selectedEmployee.gender}</Typography>
               <Typography><strong>DOB:</strong> {selectedEmployee.dob}</Typography>
+              {selectedEmployee.created_by_admin_id && (
+                <Typography>
+                  <strong>Created By:</strong> {selectedEmployee.created_by_admin ?
+                    `${selectedEmployee.created_by_admin.name} (${selectedEmployee.created_by_admin.email})` :
+                    `Admin (ID: ${selectedEmployee.created_by_admin_id})`}
+                  <Chip label="Admin Created" size="small" color="info" sx={{ ml: 1 }} />
+                </Typography>
+              )}
+              {!selectedEmployee.created_by_admin_id && (
+                <Typography>
+                  <strong>Registration:</strong> Self-registered
+                  <Chip label="Self Registered" size="small" color="default" sx={{ ml: 1 }} />
+                </Typography>
+              )}
               {selectedEmployee.cv_url && (
                 <Typography>
                   <strong>CV:</strong>{' '}
@@ -545,6 +596,12 @@ const EmployeeList = () => {
           <Button onClick={() => setOpenDialog(false)}>Close</Button>
         </DialogActions>
       </Dialog>
+
+      <AddEmployeeDialog
+        open={openAddDialog}
+        onClose={() => setOpenAddDialog(false)}
+        onSuccess={fetchEmployees}
+      />
     </Box>
   );
 };
