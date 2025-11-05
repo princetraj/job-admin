@@ -17,7 +17,6 @@ import {
   DialogActions,
   TextField,
   MenuItem,
-  Alert,
   CircularProgress,
   Chip,
   FormControl,
@@ -28,6 +27,7 @@ import {
 import { Add, Edit, Delete, PersonAdd } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import { adminService } from '../../services/adminService';
+import { useAuth } from '../../contexts/AuthContext';
 import dayjs from 'dayjs';
 
 const roles = [
@@ -38,6 +38,7 @@ const roles = [
 
 const AdminList = () => {
   const { enqueueSnackbar } = useSnackbar();
+  const { role: currentUserRole } = useAuth();
   const [admins, setAdmins] = useState([]);
   const [managers, setManagers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -58,6 +59,10 @@ const AdminList = () => {
   const [roleFilter, setRoleFilter] = useState('');
   const [managerFilter, setManagerFilter] = useState('');
 
+  // Check if current user is a manager
+  const isManager = currentUserRole === 'manager';
+  const isSuperAdmin = currentUserRole === 'super_admin';
+
   useEffect(() => {
     fetchAdmins();
     fetchManagers();
@@ -70,8 +75,12 @@ const AdminList = () => {
   const fetchAdmins = async () => {
     try {
       const params = {};
-      if (roleFilter) params.role = roleFilter;
-      if (managerFilter) params.manager_id = managerFilter;
+
+      // Only apply filters for super admin (backend handles manager filtering automatically)
+      if (isSuperAdmin) {
+        if (roleFilter) params.role = roleFilter;
+        if (managerFilter) params.manager_id = managerFilter;
+      }
 
       const response = await adminService.getAdmins(params);
       // Laravel pagination returns {data: [...], total, per_page, etc}
@@ -249,81 +258,87 @@ const AdminList = () => {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h4">Admin Management</Typography>
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          onClick={() => handleOpenDialog()}
-        >
-          Add Admin
-        </Button>
+        <Typography variant="h4">
+          {isManager ? 'My Staff' : 'Admin Management'}
+        </Typography>
+        {isSuperAdmin && (
+          <Button
+            variant="contained"
+            startIcon={<Add />}
+            onClick={() => handleOpenDialog()}
+          >
+            Add Admin
+          </Button>
+        )}
       </Box>
 
-      {/* Filters */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={(roleFilter || managerFilter) ? 5 : 6}>
-            <FormControl fullWidth sx={{ minWidth: 200 }}>
-              <InputLabel>Filter by Role</InputLabel>
-              <Select
-                value={roleFilter}
-                label="Filter by Role"
-                onChange={(e) => setRoleFilter(e.target.value)}
-                sx={{
-                  minHeight: 56,
-                  '& .MuiSelect-select': {
-                    paddingTop: '16.5px',
-                    paddingBottom: '16.5px',
-                  }
-                }}
-              >
-                <MenuItem value="">All Roles</MenuItem>
-                <MenuItem value="manager">Manager</MenuItem>
-                <MenuItem value="staff">Staff</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} md={(roleFilter || managerFilter) ? 5 : 6}>
-            <FormControl fullWidth sx={{ minWidth: 200 }}>
-              <InputLabel>Filter by Manager</InputLabel>
-              <Select
-                value={managerFilter}
-                label="Filter by Manager"
-                onChange={(e) => setManagerFilter(e.target.value)}
-                sx={{
-                  minHeight: 56,
-                  '& .MuiSelect-select': {
-                    paddingTop: '16.5px',
-                    paddingBottom: '16.5px',
-                  }
-                }}
-              >
-                <MenuItem value="">All Managers</MenuItem>
-                {managers.map((manager) => (
-                  <MenuItem key={manager.id} value={manager.id}>
-                    {manager.name} ({manager.staff_count || 0} staff)
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          {(roleFilter || managerFilter) && (
-            <Grid item xs={12} md={2} sx={{ display: 'flex', alignItems: 'center' }}>
-              <Button
-                onClick={() => {
-                  setRoleFilter('');
-                  setManagerFilter('');
-                }}
-                variant="outlined"
-                fullWidth
-                sx={{ height: 56 }}
-              >
-                Clear Filters
-              </Button>
+      {/* Filters - Only show for super admin */}
+      {isSuperAdmin && (
+        <Paper sx={{ p: 3, mb: 3 }}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={(roleFilter || managerFilter) ? 5 : 6}>
+              <FormControl fullWidth sx={{ minWidth: 200 }}>
+                <InputLabel>Filter by Role</InputLabel>
+                <Select
+                  value={roleFilter}
+                  label="Filter by Role"
+                  onChange={(e) => setRoleFilter(e.target.value)}
+                  sx={{
+                    minHeight: 56,
+                    '& .MuiSelect-select': {
+                      paddingTop: '16.5px',
+                      paddingBottom: '16.5px',
+                    }
+                  }}
+                >
+                  <MenuItem value="">All Roles</MenuItem>
+                  <MenuItem value="manager">Manager</MenuItem>
+                  <MenuItem value="staff">Staff</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
-          )}
-        </Grid>
-      </Paper>
+            <Grid item xs={12} md={(roleFilter || managerFilter) ? 5 : 6}>
+              <FormControl fullWidth sx={{ minWidth: 200 }}>
+                <InputLabel>Filter by Manager</InputLabel>
+                <Select
+                  value={managerFilter}
+                  label="Filter by Manager"
+                  onChange={(e) => setManagerFilter(e.target.value)}
+                  sx={{
+                    minHeight: 56,
+                    '& .MuiSelect-select': {
+                      paddingTop: '16.5px',
+                      paddingBottom: '16.5px',
+                    }
+                  }}
+                >
+                  <MenuItem value="">All Managers</MenuItem>
+                  {managers.map((manager) => (
+                    <MenuItem key={manager.id} value={manager.id}>
+                      {manager.name} ({manager.staff_count || 0} staff)
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            {(roleFilter || managerFilter) && (
+              <Grid item xs={12} md={2} sx={{ display: 'flex', alignItems: 'center' }}>
+                <Button
+                  onClick={() => {
+                    setRoleFilter('');
+                    setManagerFilter('');
+                  }}
+                  variant="outlined"
+                  fullWidth
+                  sx={{ height: 56 }}
+                >
+                  Clear Filters
+                </Button>
+              </Grid>
+            )}
+          </Grid>
+        </Paper>
+      )}
 
       <TableContainer component={Paper}>
         <Table>
@@ -377,7 +392,7 @@ const AdminList = () => {
                   </TableCell>
                   <TableCell>{dayjs(admin.created_at).format('MMM D, YYYY')}</TableCell>
                   <TableCell align="right">
-                    {admin.role === 'staff' && (
+                    {isSuperAdmin && admin.role === 'staff' && (
                       <IconButton
                         onClick={() => handleOpenAssignDialog(admin)}
                         size="small"
@@ -387,12 +402,21 @@ const AdminList = () => {
                         <PersonAdd />
                       </IconButton>
                     )}
-                    <IconButton onClick={() => handleOpenDialog(admin)} size="small">
-                      <Edit />
-                    </IconButton>
-                    <IconButton onClick={() => handleDelete(admin.id)} size="small" color="error">
-                      <Delete />
-                    </IconButton>
+                    {isSuperAdmin && (
+                      <>
+                        <IconButton onClick={() => handleOpenDialog(admin)} size="small">
+                          <Edit />
+                        </IconButton>
+                        <IconButton onClick={() => handleDelete(admin.id)} size="small" color="error">
+                          <Delete />
+                        </IconButton>
+                      </>
+                    )}
+                    {isManager && (
+                      <Typography variant="body2" color="text.secondary">
+                        View Only
+                      </Typography>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

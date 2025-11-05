@@ -13,7 +13,10 @@
       "Bash(findstr:*)",
       "Bash(more:*)",
       "Bash(dir:*)",
-      "Bash(composer show:*)"
+      "Bash(composer show:*)",
+      "Bash(npm run build:dev:*)",
+      "Bash(npm run:*)",
+      "Bash(php -l:*)"
     ],
     "deny": [],
     "ask": []

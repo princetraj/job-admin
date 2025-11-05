@@ -28,9 +28,11 @@ import {
 import { Visibility, Search } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import { adminService } from '../../services/adminService';
+import { useAuth } from '../../contexts/AuthContext';
 
 const OrderList = () => {
   const { enqueueSnackbar } = useSnackbar();
+  const { role } = useAuth();
   const [orders, setOrders] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -163,14 +165,14 @@ const OrderList = () => {
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        Payment Orders & Transactions
+        {role === 'super_admin' ? 'Payment Orders & Transactions' : 'Orders'}
       </Typography>
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
         <Tabs value={tabValue} onChange={handleTabChange}>
           <Tab label="Orders" />
-          <Tab label="Transactions" />
-          <Tab label="Statistics" />
+          {role === 'super_admin' && <Tab label="Transactions" />}
+          {role === 'super_admin' && <Tab label="Statistics" />}
         </Tabs>
       </Box>
 

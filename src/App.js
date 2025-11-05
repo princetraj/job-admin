@@ -56,7 +56,7 @@ function App() {
                 <Route
                   path="admins"
                   element={
-                    <ProtectedRoute roles="super_admin">
+                    <ProtectedRoute roles={['super_admin', 'manager']}>
                       <AdminList />
                     </ProtectedRoute>
                   }
@@ -71,7 +71,14 @@ function App() {
                 />
                 <Route path="employees" element={<EmployeeList />} />
                 <Route path="employers" element={<EmployerList />} />
-                <Route path="jobs" element={<JobList />} />
+                <Route
+                  path="jobs"
+                  element={
+                    <ProtectedRoute roles="super_admin">
+                      <JobList />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route path="coupons" element={<CouponList />} />
                 <Route
                   path="coupons/pending"
@@ -83,12 +90,26 @@ function App() {
                 />
                 <Route path="coupons/:id" element={<CouponDetails />} />
                 <Route path="commissions" element={<CommissionList />} />
-                <Route path="cv-requests" element={<CVRequestList />} />
-                <Route path="profile-photos" element={<ProfilePhotoApproval />} />
+                <Route
+                  path="cv-requests"
+                  element={
+                    <ProtectedRoute roles="super_admin">
+                      <CVRequestList />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="profile-photos"
+                  element={
+                    <ProtectedRoute roles="super_admin">
+                      <ProfilePhotoApproval />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="plans"
                   element={
-                    <ProtectedRoute roles={['super_admin', 'manager']}>
+                    <ProtectedRoute roles="super_admin">
                       <PlanList />
                     </ProtectedRoute>
                   }
@@ -104,7 +125,7 @@ function App() {
                 <Route
                   path="orders"
                   element={
-                    <ProtectedRoute roles={['super_admin', 'manager']}>
+                    <ProtectedRoute roles={['super_admin', 'manager', 'staff']}>
                       <OrderList />
                     </ProtectedRoute>
                   }

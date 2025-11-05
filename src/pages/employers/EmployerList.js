@@ -24,9 +24,11 @@ import { adminService } from '../../services/adminService';
 import dayjs from 'dayjs';
 import AddEmployerDialog from '../../components/AddEmployerDialog';
 import AddJobDialog from '../../components/AddJobDialog';
+import { useAuth } from '../../contexts/AuthContext';
 
 const EmployerList = () => {
   const { enqueueSnackbar } = useSnackbar();
+  const { isSuperAdmin } = useAuth();
   const [employers, setEmployers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 20 });
@@ -371,12 +373,16 @@ const EmployerList = () => {
               <CheckCircle />
             </IconButton>
           )}
-          <IconButton size="small" color="primary" onClick={() => handleOpenUpgradeDialog(params.row)} title="Upgrade Plan">
-            <Upgrade />
-          </IconButton>
-          <IconButton size="small" color="error" onClick={() => handleDelete(params.row.id)} title="Delete">
-            <Delete />
-          </IconButton>
+          {isSuperAdmin() && (
+            <IconButton size="small" color="primary" onClick={() => handleOpenUpgradeDialog(params.row)} title="Upgrade Plan">
+              <Upgrade />
+            </IconButton>
+          )}
+          {isSuperAdmin() && (
+            <IconButton size="small" color="error" onClick={() => handleDelete(params.row.id)} title="Delete">
+              <Delete />
+            </IconButton>
+          )}
         </>
       )
     }

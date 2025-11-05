@@ -23,9 +23,11 @@ import { useSnackbar } from 'notistack';
 import { adminService } from '../../services/adminService';
 import dayjs from 'dayjs';
 import AddEmployeeDialog from '../../components/AddEmployeeDialog';
+import { useAuth } from '../../contexts/AuthContext';
 
 const EmployeeList = () => {
   const { enqueueSnackbar } = useSnackbar();
+  const { isSuperAdmin } = useAuth();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [paginationModel, setPaginationModel] = useState({
@@ -342,12 +344,16 @@ const EmployeeList = () => {
               <CheckCircle />
             </IconButton>
           )}
-          <IconButton size="small" color="primary" onClick={() => handleOpenUpgradeDialog(params.row)} title="Upgrade Plan">
-            <Upgrade />
-          </IconButton>
-          <IconButton size="small" color="error" onClick={() => handleDelete(params.row.id)} title="Delete">
-            <Delete />
-          </IconButton>
+          {isSuperAdmin() && (
+            <IconButton size="small" color="primary" onClick={() => handleOpenUpgradeDialog(params.row)} title="Upgrade Plan">
+              <Upgrade />
+            </IconButton>
+          )}
+          {isSuperAdmin() && (
+            <IconButton size="small" color="error" onClick={() => handleDelete(params.row.id)} title="Delete">
+              <Delete />
+            </IconButton>
+          )}
         </>
       )
     }

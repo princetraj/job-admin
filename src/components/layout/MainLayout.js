@@ -40,7 +40,7 @@ const drawerWidth = 260;
 
 const MainLayout = () => {
   const navigate = useNavigate();
-  const { user, role, logout, isSuperAdmin, hasRole } = useAuth();
+  const { user, role, logout, hasRole } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -64,16 +64,16 @@ const MainLayout = () => {
 
   const menuItems = [
     { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard', roles: null },
-    { text: 'Admins', icon: <AdminPanelSettings />, path: '/admins', roles: 'super_admin' },
+    { text: 'Admins', icon: <AdminPanelSettings />, path: '/admins', roles: ['super_admin', 'manager'] },
     { text: 'Employees', icon: <People />, path: '/employees', roles: null },
     { text: 'Employers', icon: <Business />, path: '/employers', roles: null },
-    { text: 'Jobs', icon: <Work />, path: '/jobs', roles: null },
+    { text: 'Jobs', icon: <Work />, path: '/jobs', roles: ['super_admin'] },
     { text: 'Coupons', icon: <LocalOffer />, path: '/coupons', roles: null },
     { text: 'Commissions', icon: <AttachMoney />, path: '/commissions', roles: null },
-    { text: 'CV Requests', icon: <Description />, path: '/cv-requests', roles: null },
-    { text: 'Profile Photos', icon: <PhotoCamera />, path: '/profile-photos', roles: null },
-    { text: 'Plans', icon: <CardMembership />, path: '/plans', roles: ['super_admin', 'manager'] },
-    { text: 'Orders & Payments', icon: <Payment />, path: '/orders', roles: ['super_admin', 'manager'] },
+    { text: 'CV Requests', icon: <Description />, path: '/cv-requests', roles: ['super_admin'] },
+    { text: 'Profile Photos', icon: <PhotoCamera />, path: '/profile-photos', roles: ['super_admin'] },
+    { text: 'Plans', icon: <CardMembership />, path: '/plans', roles: ['super_admin'] },
+    { text: 'Orders & Payments', icon: <Payment />, path: '/orders', roles: ['super_admin', 'manager', 'staff'] },
     { text: 'Catalogs', icon: <Category />, path: '/catalogs', roles: ['super_admin', 'manager'] }
   ];
 
